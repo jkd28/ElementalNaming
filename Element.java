@@ -21,8 +21,16 @@ public class Element{
         return elements;
     }
 
+    public static boolean validInput(String[] arguments) {
+        if ((arguments.length != 1) || (arguments[0].equals(""))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public static void main(String[] args){
-        if (args.length != 1) {
+        if (!validInput(args)) {
             System.out.println("Usage: java Element <input file>");
             System.exit(1);
         }
