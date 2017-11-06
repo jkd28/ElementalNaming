@@ -3,6 +3,33 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class Element{
+
+    // Builds a string from the element abbreviations recursively
+    public static String buildElementString(HashMap<String, String[]> elementList, int position, String toMatch,
+                                            String elementString, boolean foundMatch){
+        // Base case if the position will be invalid
+        if (position-2 < 0) {
+            return elementString;
+        }
+
+        System.out.println("Trying: " + toMatch.substring(position-2, position));
+
+        String[] matched = getMatchingElement(elementList, toMatch.substring(position-2, position));
+
+        if (matched == null) {
+            //TODO figure out what to do on a miss for position - 2, maybe start with position-1 and work way up to 2
+            return "Failed";
+        }
+        elementString = elementString + matched[1];
+        return buildElementString(elementList, position-2, toMatch, elementString, true);
+    }
+
+
+    // Return the
+    public static String[] getMatchingElement(HashMap<String, String[]> elementList, String matchPortion) {
+        return elementList.get(matchPortion);
+    }
+
     // Creates a hashmap based on the list of elements, with the key as the
     // abbreviation of the element
     public static HashMap<String, String[]> initializeElementList(){
@@ -53,6 +80,9 @@ public class Element{
             // ignore special characters
             String originalLine = line;
             String parsedLine = line.replaceAll("[^A-Za-z]", "");
+
+            // implement the element detection algorithm
+            System.out.println("Final " + buildElementString(elementList, parsedLine.length(), parsedLine, "", true));
         }
     }
 }
