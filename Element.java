@@ -4,30 +4,56 @@ import java.util.HashMap;
 
 public class Element{
 
-    // Builds a string from the element abbreviations recursively
-    public static String buildElementString(HashMap<String, String[]> elementList, int position, String toMatch,
-                                            String elementString, boolean foundMatch){
-        // Base case if the position will be invalid
-        if (position-2 < 0) {
-            return elementString;
+    // capitalize only the first letter in a provided string
+    public static String capitalize(String word){
+        if (word.length() > 1){
+            return word.substring(0,1).toUpperCase() + word.substring(1);
+        } else {
+            return word.toUpperCase();
         }
-
-        System.out.println("Trying: " + toMatch.substring(position-2, position));
-
-        String[] matched = getMatchingElement(elementList, toMatch.substring(position-2, position));
-
-        if (matched == null) {
-            //TODO figure out what to do on a miss for position - 2, maybe start with position-1 and work way up to 2
-            return "Failed";
-        }
-        elementString = elementString + matched[1];
-        return buildElementString(elementList, position-2, toMatch, elementString, true);
     }
 
+    public static String buildOutputString(HashMap<String, String[]> elementList, String elementWord, String originalWord){
+        if (elementWord.equals("")) {
+            return "Could not create name \"" + originalWord + "\" out of elements.";
+        } else {
+            String[] elements = elementWord.split(",");
+             String output = "";
+            for (String element : elements) {
+                 output += capitalize(element) + " - ";
+             }
+             // return the concatenated string, minus the last '-' inserted
+            return output.substring(0,output.length()-2);
+        }
+    }
 
-    // Return the
-    public static String[] getMatchingElement(HashMap<String, String[]> elementList, String matchPortion) {
-        return elementList.get(matchPortion);
+    // recursively build the element word from the back to the front of the supplied word
+    // returns an empty string if no word can be crafted
+    public static String buildElementString(HashMap<String, String[]> elementList, String fullWord, String buildWord) {
+        if (fullWord.equals("")) {
+            return buildWord;
+        }
+        int wordLength = fullWord.length();
+        String oneLetter = fullWord.substring(wordLength-1, wordLength);
+        String[] matched = elementList.get(oneLetter);
+
+        if (matched == null){
+            if (wordLength-2 < 0) {
+                return "";
+            }
+            // then try with two letters
+            String twoLetters = fullWord.substring(wordLength-2, wordLength);
+            //System.out.println("One letter failed trying: " + twoLetters);
+            matched = elementList.get(twoLetters);
+
+            if (matched == null) {
+                return "";
+            } else {
+                return buildElementString(elementList, fullWord.substring(0, wordLength-2), matched[0]+","+buildWord);
+            }
+        }
+        //System.out.println("One letter successful, matched " + matched[1]);
+        return buildElementString(elementList, fullWord.substring(0, wordLength-1), matched[0]+","+buildWord);
     }
 
     // Creates a hashmap based on the list of elements, with the key as the
@@ -37,7 +63,7 @@ public class Element{
         HashMap<String, String[]> elements = new HashMap<String, String[]>();
         try {
             elementContent = new String(Files.readAllBytes(Paths.get("elements.txt")));
-            for (String element : elementContent.split("\\r?\\n")) {
+            for (String element : elementContent.toLowerCase().split("\\r?\\n")) {
                 String[] splitElement = element.split(":");
                 elements.put(splitElement[0], splitElement);
             }
@@ -70,19 +96,26 @@ public class Element{
         String fileContents = "";
         try {
             // create a string from the byte array of the file
-            fileContents = new String(Files.readAllBytes(Paths.get(args[0])));
+            fileContents = (new String(Files.readAllBytes(Paths.get(args[0]))));
         } catch (Exception e) {
             System.out.println("Enter a valid filename.");
             System.exit(1);
         }
 
         for(String line : fileContents.split("\\r?\\n")) {
+            if (line.equals("")) {
+                continue;
+            }
             // ignore special characters
             String originalLine = line;
             String parsedLine = line.replaceAll("[^A-Za-z]", "");
+            int length = parsedLine.length();
 
             // implement the element detection algorithm
-            System.out.println("Final " + buildElementString(elementList, parsedLine.length(), parsedLine, "", true));
+            String lineOutput = buildElementString(elementList, parsedLine.toLowerCase(), "");
+            String finalOutput = buildOutputString(elementList, lineOutput, originalLine);
+            String elementsUsed = getElementsUsed();
+            System.out.println(finalOutput + "\n");
         }
     }
 }
