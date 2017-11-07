@@ -8,7 +8,9 @@ public class Element{
         String elements = "";
         for (String abbreviation : elementWord.split(" - ")) {
             String fullElement = elementList.get(abbreviation.trim().toLowerCase());
-
+            if (fullElement == null) {
+                return "";
+            }
             elements += (fullElement + " - ");
         }
         return elements.substring(0, elements.length()-2);
@@ -24,7 +26,7 @@ public class Element{
     }
 
     public static String buildOutputString(HashMap<String, String> elementList, String elementWord, String originalWord){
-        if (elementWord.equals("")) {
+        if ((elementWord == null) || (elementWord.equals(""))) {
             return "Could not create name \"" + originalWord + "\" out of elements.";
         } else {
             String[] elements = elementWord.split(",");
@@ -37,35 +39,32 @@ public class Element{
         }
     }
 
-    // Recursively build the element word from the back to the front of the supplied word
-    // returns an empty string if no word can be crafted
-    public static String buildElementString(HashMap<String, String> elementList, String fullWord, String buildWord) {
-        if (fullWord.equals("")) {
-            return buildWord;
-        }
-        int wordLength = fullWord.length();
-        String oneLetter = fullWord.substring(wordLength-1, wordLength);
-        String matched = elementList.get(oneLetter);
 
-        if (matched == null){
-            if (wordLength-2 < 0) {
-                return "";
-            }
-            // then try with two letters
-            String twoLetters = fullWord.substring(wordLength-2, wordLength);
-            matched = elementList.get(twoLetters);
-
-            if (matched == null) {
-                // no match was found for either one or two letters
-                return "";
-            } else {
-                // matched on two letters
-                return buildElementString(elementList, fullWord.substring(0, wordLength-2), twoLetters+","+buildWord);
-            }
+    public static String buildElementString(HashMap<String,String> elementList, String fullWord) {
+        // Check all remaining characters in the hash table, and return them if they work
+        if (elementList.get(fullWord) != null) {
+            return fullWord;
         }
-        // Found a match for one letter
-        return buildElementString(elementList, fullWord.substring(0, wordLength-1), oneLetter+","+buildWord);
+
+        // Iterate through combinations of one and two letter, back
+        for (int i = 1; i <= 2; i++) {
+            String possibleElement = fullWord.substring(0, i);
+
+            if (elementList.get(possibleElement) != null) {
+                // if there is a match here, try the rest of the word.
+                String elementWord = buildElementString(elementList, fullWord.substring(i, fullWord.length()));
+
+                if (elementWord != null) {
+                    return possibleElement + " - " + elementWord;
+                }
+            }
+            // else, try with a substring of length 2
+        }
+        // If no match was found for any substing length 1 or 2, then there is no possible way to make a word
+        // out of the elements
+        return null;
     }
+
 
     // Create a hashmap based on the list of elements, with the key as the
     // abbreviation of the element
@@ -109,7 +108,7 @@ public class Element{
             // create a string from the byte array of the file
             fileContents = (new String(Files.readAllBytes(Paths.get(args[0]))));
         } catch (Exception e) {
-            System.out.println("Enter a valid filename.");
+            System.out.println("ERROR: Enter a valid filename.");
             System.exit(1);
         }
 
@@ -123,13 +122,13 @@ public class Element{
             int length = parsedLine.length();
 
             // implement the element word-build algorithm
-            String lineOutput = buildElementString(elementList, parsedLine.toLowerCase(), "");
+            String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
             String finalOutput = buildOutputString(elementList, lineOutput, originalLine);
             String elementsUsed = getElementsUsed(elementList, finalOutput);
 
             // print the results
-            System.out.println("Final Output: " + finalOutput);
-            System.out.println("Element List: " + elementsUsed);
+            System.out.println(finalOutput);
+            System.out.println(elementsUsed);
         }
     }
 }
