@@ -3,8 +3,18 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class Element{
+    // Create a string of full element names given a string of ' - ' deliniated element abbreviations
+    public static String getElementsUsed(HashMap<String, String> elementList, String elementWord) {
+        String elements = "";
+        for (String abbreviation : elementWord.split(" - ")) {
+            String fullElement = elementList.get(abbreviation.trim().toLowerCase());
 
-    // capitalize only the first letter in a provided string
+            elements += (fullElement + " - ");
+        }
+        return elements.substring(0, elements.length()-2);
+    }
+
+    // Capitalize only the first letter in a provided string
     public static String capitalize(String word){
         if (word.length() > 1){
             return word.substring(0,1).toUpperCase() + word.substring(1);
@@ -13,7 +23,7 @@ public class Element{
         }
     }
 
-    public static String buildOutputString(HashMap<String, String[]> elementList, String elementWord, String originalWord){
+    public static String buildOutputString(HashMap<String, String> elementList, String elementWord, String originalWord){
         if (elementWord.equals("")) {
             return "Could not create name \"" + originalWord + "\" out of elements.";
         } else {
@@ -27,15 +37,15 @@ public class Element{
         }
     }
 
-    // recursively build the element word from the back to the front of the supplied word
+    // Recursively build the element word from the back to the front of the supplied word
     // returns an empty string if no word can be crafted
-    public static String buildElementString(HashMap<String, String[]> elementList, String fullWord, String buildWord) {
+    public static String buildElementString(HashMap<String, String> elementList, String fullWord, String buildWord) {
         if (fullWord.equals("")) {
             return buildWord;
         }
         int wordLength = fullWord.length();
         String oneLetter = fullWord.substring(wordLength-1, wordLength);
-        String[] matched = elementList.get(oneLetter);
+        String matched = elementList.get(oneLetter);
 
         if (matched == null){
             if (wordLength-2 < 0) {
@@ -43,29 +53,30 @@ public class Element{
             }
             // then try with two letters
             String twoLetters = fullWord.substring(wordLength-2, wordLength);
-            //System.out.println("One letter failed trying: " + twoLetters);
             matched = elementList.get(twoLetters);
 
             if (matched == null) {
+                // no match was found for either one or two letters
                 return "";
             } else {
-                return buildElementString(elementList, fullWord.substring(0, wordLength-2), matched[0]+","+buildWord);
+                // matched on two letters
+                return buildElementString(elementList, fullWord.substring(0, wordLength-2), twoLetters+","+buildWord);
             }
         }
-        //System.out.println("One letter successful, matched " + matched[1]);
-        return buildElementString(elementList, fullWord.substring(0, wordLength-1), matched[0]+","+buildWord);
+        // Found a match for one letter
+        return buildElementString(elementList, fullWord.substring(0, wordLength-1), oneLetter+","+buildWord);
     }
 
-    // Creates a hashmap based on the list of elements, with the key as the
+    // Create a hashmap based on the list of elements, with the key as the
     // abbreviation of the element
-    public static HashMap<String, String[]> initializeElementList(){
+    public static HashMap<String, String> initializeElementList(){
         String elementContent = "";
-        HashMap<String, String[]> elements = new HashMap<String, String[]>();
+        HashMap<String, String> elements = new HashMap<String, String>();
         try {
             elementContent = new String(Files.readAllBytes(Paths.get("elements.txt")));
             for (String element : elementContent.toLowerCase().split("\\r?\\n")) {
                 String[] splitElement = element.split(":");
-                elements.put(splitElement[0], splitElement);
+                elements.put(splitElement[0], splitElement[1]);
             }
         } catch (Exception e) {
             System.out.println("Error reading elements.txt.\nExiting....");
@@ -88,7 +99,7 @@ public class Element{
             System.exit(1);
         }
 
-        HashMap<String, String[]> elementList = initializeElementList();
+        HashMap<String, String> elementList = initializeElementList();
         if (elementList == null) {
             System.exit(1);
         }
@@ -111,11 +122,14 @@ public class Element{
             String parsedLine = line.replaceAll("[^A-Za-z]", "");
             int length = parsedLine.length();
 
-            // implement the element detection algorithm
+            // implement the element word-build algorithm
             String lineOutput = buildElementString(elementList, parsedLine.toLowerCase(), "");
             String finalOutput = buildOutputString(elementList, lineOutput, originalLine);
-            String elementsUsed = getElementsUsed();
-            System.out.println(finalOutput + "\n");
+            String elementsUsed = getElementsUsed(elementList, finalOutput);
+
+            // print the results
+            System.out.println("Final Output: " + finalOutput);
+            System.out.println("Element List: " + elementsUsed);
         }
     }
 }
