@@ -3,50 +3,49 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class Element{
+    // Capitalize only the first letter in a provided string
+    public static String capitalize(String word){
+        return word.substring(0,1).toUpperCase() + word.substring(1);
+    }
+
     // Create a string of full element names given a string of ' - ' deliniated element abbreviations
     public static String getElementsUsed(HashMap<String, String> elementList, String elementWord) {
         String elements = "";
-        for (String abbreviation : elementWord.split(" - ")) {
+        for (String abbreviation : elementWord.split("-")) {
             String fullElement = elementList.get(abbreviation.trim().toLowerCase());
             if (fullElement == null) {
                 return "";
             }
-            elements += (fullElement + " - ");
+            elements = elements + capitalize(fullElement) + " - ";
         }
         return elements.substring(0, elements.length()-2);
     }
 
-    // Capitalize only the first letter in a provided string
-    public static String capitalize(String word){
-        if (word.length() > 1){
-            return word.substring(0,1).toUpperCase() + word.substring(1);
-        } else {
-            return word.toUpperCase();
-        }
-    }
-
+    // Build the string to be output by separating the element abbreviations by hyphens
     public static String buildOutputString(HashMap<String, String> elementList, String elementWord, String originalWord){
         if ((elementWord == null) || (elementWord.equals(""))) {
             return "Could not create name \"" + originalWord + "\" out of elements.";
         } else {
-            String[] elements = elementWord.split(",");
-             String output = "";
+            String[] elements = elementWord.split("-");
+            String output = "";
             for (String element : elements) {
-                 output += capitalize(element) + " - ";
+                element = capitalize(element.trim());
+                output = output + element + " - ";
              }
              // return the concatenated string, minus the last '-' inserted
             return output.substring(0,output.length()-2);
         }
     }
 
-
+    // Recursively determine if it is possible to build the word from a combination of the
+    // element abbreviations provided
     public static String buildElementString(HashMap<String,String> elementList, String fullWord) {
         // Check all remaining characters in the hash table, and return them if they work
         if (elementList.get(fullWord) != null) {
             return fullWord;
         }
 
-        // Iterate through combinations of one and two letter, back
+        // Iterate through combinations of one and two letter, backtrackign when no match is found
         for (int i = 1; i <= 2; i++) {
             String possibleElement = fullWord.substring(0, i);
 
@@ -55,10 +54,11 @@ public class Element{
                 String elementWord = buildElementString(elementList, fullWord.substring(i, fullWord.length()));
 
                 if (elementWord != null) {
+                    // If there's a match later, concatenate the current abbreviation to the
+                    // combination of later abbreviations
                     return possibleElement + " - " + elementWord;
                 }
             }
-            // else, try with a substring of length 2
         }
         // If no match was found for any substing length 1 or 2, then there is no possible way to make a word
         // out of the elements
@@ -84,6 +84,8 @@ public class Element{
         return elements;
     }
 
+    // Determine if the input arguments are valid, e.g. they exist and there
+    // is exactly one of them
     public static boolean validInput(String[] arguments) {
         if ((arguments.length != 1) || (arguments[0].equals(""))) {
             return false;
@@ -91,6 +93,7 @@ public class Element{
             return true;
         }
     }
+
 
     public static void main(String[] args){
         if (!validInput(args)) {
@@ -112,6 +115,7 @@ public class Element{
             System.exit(1);
         }
 
+
         for(String line : fileContents.split("\\r?\\n")) {
             if (line.equals("")) {
                 continue;
@@ -122,6 +126,8 @@ public class Element{
             int length = parsedLine.length();
 
             // implement the element word-build algorithm
+            //String output = analyzeLine();
+
             String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
             String finalOutput = buildOutputString(elementList, lineOutput, originalLine);
             String elementsUsed = getElementsUsed(elementList, finalOutput);
