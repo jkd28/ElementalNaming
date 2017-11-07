@@ -94,6 +94,15 @@ public class Element{
         }
     }
 
+    public static String analyzeLine(HashMap<String,String> elementList, String line){
+        String parsedLine = line.replaceAll("[^A-Za-z]", "");
+        String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
+        String finalOutput = buildOutputString(elementList, lineOutput, line);
+        String fullElementsUsed = getElementsUsed(elementList, finalOutput);
+
+        return finalOutput + "\n" + fullElementsUsed;
+    }
+
 
     public static void main(String[] args){
         if (!validInput(args)) {
@@ -115,26 +124,19 @@ public class Element{
             System.exit(1);
         }
 
-
+        // Iterate through every line of the file
         for(String line : fileContents.split("\\r?\\n")) {
             if (line.equals("")) {
                 continue;
             }
             // ignore special characters
             String originalLine = line;
-            String parsedLine = line.replaceAll("[^A-Za-z]", "");
-            int length = parsedLine.length();
 
             // implement the element word-build algorithm
-            //String output = analyzeLine();
-
-            String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
-            String finalOutput = buildOutputString(elementList, lineOutput, originalLine);
-            String elementsUsed = getElementsUsed(elementList, finalOutput);
+            String output = analyzeLine(elementList, line);
 
             // print the results
-            System.out.println(finalOutput);
-            System.out.println(elementsUsed);
+            System.out.println(output);
         }
     }
 }
