@@ -65,22 +65,128 @@ public class Element{
         return null;
     }
 
-
     // Create a hashmap based on the list of elements, with the key as the
     // abbreviation of the element
     public static HashMap<String, String> initializeElementList(){
-        String elementContent = "";
         HashMap<String, String> elements = new HashMap<String, String>();
-        try {
-            elementContent = new String(Files.readAllBytes(Paths.get("elements.txt")));
-            for (String element : elementContent.toLowerCase().split("\\r?\\n")) {
-                String[] splitElement = element.split(":");
-                elements.put(splitElement[0], splitElement[1]);
-            }
-        } catch (Exception e) {
-            System.out.println("Error reading elements.txt.\nExiting....");
-            return null;
-        }
+        elements.put("ac", "actinium");
+        elements.put("ag", "silver");
+        elements.put("al", "aluminum");
+        elements.put("am", "americium");
+        elements.put("ar", "argon");
+        elements.put("as", "arsenic");
+        elements.put("at", "astatine");
+        elements.put("au", "gold");
+        elements.put("b", "boron");
+        elements.put("ba", "barium");
+        elements.put("be", "beryllium");
+        elements.put("bh", "bohrium");
+        elements.put("bi", "bismuth");
+        elements.put("bk", "berkelium");
+        elements.put("br", "bromine");
+        elements.put("c", "carbon");
+        elements.put("ca", "calcium");
+        elements.put("cd", "cadmium");
+        elements.put("ce", "cerium");
+        elements.put("cf", "californium");
+        elements.put("cl", "chlorine");
+        elements.put("cm", "curium");
+        elements.put("cn", "copernicium");
+        elements.put("co", "cobalt");
+        elements.put("cr", "chromium");
+        elements.put("cs", "cesium");
+        elements.put("cu", "copper");
+        elements.put("db", "dubnium");
+        elements.put("ds", "darmstadtium");
+        elements.put("dy", "dysprosium");
+        elements.put("er", "erbium");
+        elements.put("es", "einsteinium");
+        elements.put("eu", "europium");
+        elements.put("f", "fluorine");
+        elements.put("fe", "iron");
+        elements.put("fl", "flerovium");
+        elements.put("fm", "fermium");
+        elements.put("fr", "francium");
+        elements.put("ga", "gallium");
+        elements.put("gd", "gadolinium");
+        elements.put("ge", "germanium");
+        elements.put("h", "hydrogen");
+        elements.put("he", "helium");
+        elements.put("hf", "hafnium");
+        elements.put("hg", "mercury");
+        elements.put("ho", "holmium");
+        elements.put("hs", "hassium");
+        elements.put("i", "iodine");
+        elements.put("in", "indium");
+        elements.put("ir", "iridium");
+        elements.put("k", "potassium");
+        elements.put("kr", "krypton");
+        elements.put("la", "lanthanum");
+        elements.put("li", "lithium");
+        elements.put("lr", "lawrencium");
+        elements.put("lu", "lutetium");
+        elements.put("lv", "livermorium");
+        elements.put("mc", "moscovium");
+        elements.put("md", "mendelevium");
+        elements.put("mg", "magnesium");
+        elements.put("mn", "manganese");
+        elements.put("mo", "molybdenum");
+        elements.put("mt", "meitnerium");
+        elements.put("n", "nitrogen");
+        elements.put("na", "sodium");
+        elements.put("nb", "niobium");
+        elements.put("nd", "neodymium");
+        elements.put("ne", "neon");
+        elements.put("nh", "nihonium");
+        elements.put("ni", "nickel");
+        elements.put("no", "nobelium");
+        elements.put("np", "neptunium");
+        elements.put("o", "oxygen");
+        elements.put("og", "oganesson");
+        elements.put("os", "osmium");
+        elements.put("p", "phosphorus");
+        elements.put("pa", "protactinium");
+        elements.put("pb", "lead");
+        elements.put("pd", "palladium");
+        elements.put("pm", "promethium");
+        elements.put("po", "polonium");
+        elements.put("pr", "praseodymium");
+        elements.put("pt", "platinum");
+        elements.put("pu", "plutonium");
+        elements.put("ra", "radium");
+        elements.put("rb", "rubidium");
+        elements.put("re", "rhenium");
+        elements.put("rf", "rutherfordium");
+        elements.put("rg", "roentgenium");
+        elements.put("rh", "rhodium");
+        elements.put("rn", "radon");
+        elements.put("ru", "ruthenium");
+        elements.put("s", "sulfur");
+        elements.put("sb", "antimony");
+        elements.put("sc", "scandium");
+        elements.put("se", "selenium");
+        elements.put("sg", "seaborgium");
+        elements.put("si", "silicon");
+        elements.put("sm", "samarium");
+        elements.put("sn", "tin");
+        elements.put("sr", "strontium");
+        elements.put("ta", "tantalum");
+        elements.put("tb", "terbium");
+        elements.put("tc", "technetium");
+        elements.put("te", "tellurium");
+        elements.put("th", "thorium");
+        elements.put("ti", "titanium");
+        elements.put("tl", "thallium");
+        elements.put("tm", "thulium");
+        elements.put("ts", "tennessine");
+        elements.put("u", "uranium");
+        elements.put("v", "vanadium");
+        elements.put("w", "tungsten");
+        elements.put("xe", "xenon");
+        elements.put("y", "yttrium");
+        elements.put("yb", "ytterbium");
+        elements.put("zn", "zinc");
+        elements.put("zr", "zirconium");
         return elements;
     }
 
@@ -94,6 +200,7 @@ public class Element{
         }
     }
 
+    // Initiate the algorithm and control the flow of the analysis
     public static String analyzeLine(HashMap<String,String> elementList, String line){
         String parsedLine = line.replaceAll("[^A-Za-z]", "");
         String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
@@ -101,6 +208,17 @@ public class Element{
         String fullElementsUsed = getElementsUsed(elementList, finalOutput);
 
         return finalOutput + "\n" + fullElementsUsed;
+    }
+
+    // Read in the file and make it a string, throwing an exception if
+    // any error is encountered
+    public static String readFile(String file){
+        try {
+            // create a string from the byte array of the file
+            return (new String(Files.readAllBytes(Paths.get(file))));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 
@@ -111,15 +229,9 @@ public class Element{
         }
 
         HashMap<String, String> elementList = initializeElementList();
-        if (elementList == null) {
-            System.exit(1);
-        }
 
-        String fileContents = "";
-        try {
-            // create a string from the byte array of the file
-            fileContents = (new String(Files.readAllBytes(Paths.get(args[0]))));
-        } catch (Exception e) {
+         String fileContents = readFile(args[0]);
+        if (fileContents == null){
             System.out.println("ERROR: Enter a valid filename.");
             System.exit(1);
         }
@@ -133,10 +245,10 @@ public class Element{
             String originalLine = line;
 
             // implement the element word-build algorithm
-            String output = analyzeLine(elementList, line);
+            String lineOutput = analyzeLine(elementList, line);
 
             // print the results
-            System.out.println(output);
+            System.out.println(lineOutput+"\n");
         }
     }
 }
