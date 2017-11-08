@@ -11,23 +11,32 @@ public class Element{
     // Create a string of full element names given a string of ' - ' deliniated element abbreviations
     public static String getElementsUsed(HashMap<String, String> elementList, String elementWord) {
         String elements = "";
+
         for (String abbreviation : elementWord.split("-")) {
+            // get the element name based on the abbreviation
             String fullElement = elementList.get(abbreviation.trim().toLowerCase());
             if (fullElement == null) {
                 return "";
             }
+            // concatenate the string to the existing elements already processed, with proper formatting
             elements = elements + capitalize(fullElement) + " - ";
         }
+        // return the concatenated string, minus the last dash
         return elements.substring(0, elements.length()-2);
     }
 
     // Build the string to be output by separating the element abbreviations by hyphens
+    // as well as capitalizing them for proper input
     public static String buildOutputString(HashMap<String, String> elementList, String elementWord, String originalWord){
         if ((elementWord == null) || (elementWord.equals(""))) {
+            // No combination of abbreviations could build the words, so return that message
             return "Could not create name \"" + originalWord + "\" out of elements.";
         } else {
+            // an abbreviation word was properly built, now format it
             String[] elements = elementWord.split("-");
             String output = "";
+
+            // capitalize each abbreviation
             for (String element : elements) {
                 element = capitalize(element.trim());
                 output = output + element + " - ";
@@ -193,7 +202,7 @@ public class Element{
     // Determine if the input arguments are valid, e.g. they exist and there
     // is exactly one of them
     public static boolean validInput(String[] arguments) {
-        if ((arguments.length != 1) || (arguments[0].equals(""))) {
+        if ((arguments == null) || (arguments.length != 1) || (arguments[0].equals(""))) {
             return false;
         } else {
             return true;
@@ -202,6 +211,7 @@ public class Element{
 
     // Initiate the algorithm and control the flow of the analysis
     public static String analyzeLine(HashMap<String,String> elementList, String line){
+        // ignore special characters and make the line lowercase for consistency
         String parsedLine = line.replaceAll("[^A-Za-z]", "");
         String lineOutput = buildElementString(elementList, parsedLine.toLowerCase());
         String finalOutput = buildOutputString(elementList, lineOutput, line);
